@@ -5,10 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { Icon } from "../../../shared/components/icon/icon";
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Icon],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -21,6 +22,8 @@ export class Login {
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
+
+  showPassword = false
 
   onLogin() {
 
@@ -49,6 +52,10 @@ export class Login {
         }
       });
 
+  }
+
+  setShowPassword(value: boolean) {
+    this.showPassword = value;
   }
 
 }
