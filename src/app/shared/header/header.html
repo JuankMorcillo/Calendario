@@ -1,0 +1,24 @@
+<header class="flex justify-between h-14 shadow-md mb-6">
+
+    <div class="flex items-center ml-4">
+        <span class="text-xl font-bold">Calendario de eventos</span>
+    </div>
+
+    <div class="flex items-center mr-4" (click)="toggleMenu()">
+        <button class="cursor-pointer text-white px-4 py-2 rounded-full" [style.backgroundColor]="stringToColor()">
+            {{getInitials()}}
+        </button>
+    </div>
+
+    @if (showMenu) {
+    <div class="absolute flex flex-col justify-center items-center right-1 z-50 top-14 mt-1 w-48 bg-white rounded-md shadow-lg py-2 ">
+
+        <span class="block px-4 py-2 text-gray-800">{{ authService.getUser()?.user.name }}</span>
+
+        <button class="w-40 p-2 flex justify-center cursor-pointer text-white bg-red-500 rounded-full" 
+        (click)="logout()">Cerrar
+            sesión</button>
+    </div>
+    }
+
+</header>
