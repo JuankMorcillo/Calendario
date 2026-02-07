@@ -3,11 +3,30 @@
     <div class="calendar-header">
         <div class="header-controls">
             <button class="btn-nav" (click)="previousMonth()">‹</button>
-            <h2 class="month-year">{{ getMonthYear() | uppercase }}</h2>
             <button class="btn-nav" (click)="nextMonth()">›</button>
+            <h2 class="month-year">{{ getMonthYear() | uppercase }}</h2>
         </div>
-        <button class="btn-today" (click)="today()">Hoy</button>
-        <button class="btn-print" (click)="printEvents()">📤 Imprimir</button>
+        <select [(ngModel)]="selectedCategory"
+            class="w-full max-w-xs p-3 border border-gray-300 rounded-md hover:border-gray-400 transition-colors"
+            (change)="filterEventsByCategory(selectedCategory)">
+            <option [ngValue]="null">Todas las categorías</option>
+            @for (category of categories; track $index) {
+            <option [ngValue]="category.id">{{ category.name }}</option>
+            }
+        </select>
+        <select [(ngModel)]="selectedStatus"
+            class="w-full max-w-xs p-3 border border-gray-300 rounded-md hover:border-gray-400 transition-colors"
+            (change)="filterEventsByStatus(selectedStatus)">
+            <option [ngValue]="null">Todos los estados</option>
+            <option [ngValue]="'borrador'">Borrador</option>
+            <option [ngValue]="'bloqueado'">Bloqueado</option>
+            <option [ngValue]="'oculto'">Oculto</option>
+        </select>
+
+        <button class="btn-print font-bold" (click)="openModal()">
+            <app-icon type="circlePlus" classNames="mr-2"></app-icon>
+            Crear sesiones
+        </button>
     </div>
 
     <!-- Días de la semana -->
@@ -22,19 +41,25 @@
     </div>
 
     <!-- Grid del calendario -->
-    <div class="calendar-grid">
+    <div class="flex-1 grid calendar-grid">
         @for (week of weeks; track $index) {
 
         @for (date of week; track $index) {
-        <div [class.other-month]="!isCurrentMonth(date)" class="day-cell" (click)="openModal(date)">
-            <div class="day-number">{{ date?.getDate() }}</div>
+        <div [class.other-month]="!isCurrentMonth(date)" class="day-cell">
+            <div class="day-number">{{ date?.getDate() }} {{date?.toLocaleString('default', {month: 'short'})}}</div>
             <div class="events-list">
 
                 @for (event of getEventsForDate(date); track $index) {
                 <div [ngClass]="getColorClass(event.color)" class="event-item" (click)="$event.stopPropagation()">
-                    <div class="event-time">{{ event.time }}</div>
-                    <div class="event-title">{{ event.title }}</div>
-                    <button class="btn-delete" (click)="deleteEvent(event.id)">✕</button>
+                    <div class="flex flex-col" (click)="setEvent(event.id); setEventId(event.id); openModalUpdate()">
+                        <div class="event-time-text">{{ event.time }}</div>
+                        <div class="event-title">{{ event.title }}</div>
+                    </div>
+                    @if (authService.getRole() == 'admin' && event.city == authService.getUser()?.user.city) {
+                    <button class="btn-delete" (click)="deleteEvent(event.id)">
+                        <app-icon type="xIcon" classNames="text-gray-500"></app-icon>
+                    </button>
+                    }
                 </div>
                 }
             </div>
@@ -51,17 +76,26 @@
         <div class="modal-content" (click)="$event.stopPropagation()">
             <div class="modal-header">
                 <h3>Crear Evento</h3>
-                <button class="btn-close" (click)="closeModal()">✕</button>
+                <button class="btn-close" (click)="closeModal()">
+                    <app-icon type="xIcon" classNames="text-gray-500"></app-icon>
+                </button>
             </div>
 
             <div class="modal-body">
-                <p class="selected-date">
-                    Fecha: {{ selectedDate | date: 'dd/MM/yyyy' }}
-                </p>
+
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" [(ngModel)]="newEvent.date">
+                </div>
 
                 <div class="form-group">
                     <label>Título</label>
                     <input type="text" [(ngModel)]="newEvent.title" placeholder="Ej: Visita guiada">
+                </div>
+
+                <div class="form-group">
+                    <label>Ciudad</label>
+                    <input type="text" [(ngModel)]="newEvent.city" placeholder="Ej: Madrid">
                 </div>
 
                 <div class="form-group">
@@ -93,6 +127,68 @@
             <div class="modal-footer">
                 <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
                 <button class="btn-save" (click)="createEvent()">Crear Evento</button>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (showModalUpdate) {
+    <div class="modal-overlay" (click)="closeModalUpdate()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Actualizar Evento</h3>
+                <button class="btn-close" (click)="closeModalUpdate()">
+                    <app-icon type="xIcon" classNames="text-gray-500"></app-icon>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" [ngModel]="newEvent.date | date:'yyyy-MM-dd'"
+                        (ngModelChange)="newEvent.date = $event">
+                </div>
+
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" [(ngModel)]="newEvent.title" placeholder="Ej: Visita guiada">
+                </div>
+
+                <div class="form-group">
+                    <label>Ciudad</label>
+                    <input type="text" [(ngModel)]="newEvent.city" placeholder="Ej: Madrid">
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea [(ngModel)]="newEvent.description" placeholder="Detalles del evento"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hora</label>
+                        <input type="time" [(ngModel)]="newEvent.time">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select [(ngModel)]="newEvent.category">
+                            @for (category of categories; track $index) {
+
+                            <option [value]="category.id">
+                                {{ category.name }}
+                            </option>
+
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModalUpdate()">Cancelar</button>
+                <button class="btn-save" (click)="updateEvent()">Actualizar Evento</button>
             </div>
         </div>
     </div>

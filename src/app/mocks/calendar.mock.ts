@@ -1,18 +1,38 @@
-export const MOCK_CALENDARS = [
+import { Calendar } from "../core/models/calendar.interface";
+import { CATEGORY_MOCK } from "./category.mock";
+
+export const MOCK_CALENDARS: Calendar[] = [
     {
         id: 1,
-        title: 'Reunión de equipo',
-        description: 'Reunión semanal para discutir el progreso del proyecto.',
-        date: new Date('2026-07-01'),
+        title: 'Visita guiada al Taller',
+        description: 'Tour por las instalaciones',
+        date: new Date(2026, 1, 1),
         time: '10:00',
-        color: 'blue'
+        category: 1,
+        city: 'Cali',
+        status: 'borrador',
+        color: CATEGORY_MOCK.find(c => c.id === 1)?.color || 'pink'
     },
     {
         id: 2,
-        title: 'Presentación de resultados',
-        description: 'Presentación de los resultados del último trimestre.',
-        date: new Date('2026-07-05'),
-        time: '14:00',
-        color: 'green'
-    }
+        title: 'Visita guiada al Taller',
+        description: 'Tour por las instalaciones',
+        date: new Date(2026, 1, 2),
+        time: '10:00',
+        category: 1,
+        city: 'Cali',
+        status: 'borrador',
+        color: CATEGORY_MOCK.find(c => c.id === 1)?.color || 'pink'
+    },
+    {
+        id: 3,
+        title: 'Teatro "Inmaculado"',
+        description: 'Evento teatral',
+        date: new Date(2026, 1, 28),
+        time: '19:30',
+        category: 2,
+        city: 'Cali',
+        status: 'borrador',
+        color: CATEGORY_MOCK.find(c => c.id === 2)?.color || 'blue'
+    },
 ]
