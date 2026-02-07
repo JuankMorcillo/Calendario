@@ -3,7 +3,8 @@ export const MOCK_LOGIN_RESPONSE = [{
         id: 1,
         name: 'John Doe',
         email: 'johndoe@email.com',
-        token: 'mocked-jwt-token'
+        role: 'user',
+        city: 'Madrid'
     },
     token: 'mocked-jwt-token'
 },
@@ -12,19 +13,34 @@ export const MOCK_LOGIN_RESPONSE = [{
         id: 2,
         name: 'Juan Doe',
         email: 'juandoe@sdi.es',
-        token: 'mocked-jwt-token'
+        role: 'admin',
+        city: 'Madrid'
     },
     token: 'mocked-jwt-token'
 },
+{
+    user: {
+        id: 2,
+        name: 'Pepe Doe',
+        email: 'pepedoe@sdi.es',
+        role: 'admin',
+        city: 'Cali'
+    },
+    token: 'mocked-jwt-token'
+}
 ]
 
 export const MOCK_USERS = [
     {
         email: 'johndoe@email.com',
-        password: 'password123'
+        password: '12345'
     },
     {
         email: 'juandoe@sdi.es',
-        password: 'password123'
+        password: '12345'
+    },
+    {
+        email: 'pepedoe@sdi.es',
+        password: '12345'
     }
 ]
