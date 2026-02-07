@@ -1,0 +1,101 @@
+<div class="calendar-container">
+    <!-- Header -->
+    <div class="calendar-header">
+        <div class="header-controls">
+            <button class="btn-nav" (click)="previousMonth()">‹</button>
+            <h2 class="month-year">{{ getMonthYear() | uppercase }}</h2>
+            <button class="btn-nav" (click)="nextMonth()">›</button>
+        </div>
+        <button class="btn-today" (click)="today()">Hoy</button>
+        <button class="btn-print" (click)="printEvents()">📤 Imprimir</button>
+    </div>
+
+    <!-- Días de la semana -->
+    <div class="weekdays">
+        <div class="weekday">Domingo</div>
+        <div class="weekday">Lunes</div>
+        <div class="weekday">Martes</div>
+        <div class="weekday">Miércoles</div>
+        <div class="weekday">Jueves</div>
+        <div class="weekday">Viernes</div>
+        <div class="weekday">Sábado</div>
+    </div>
+
+    <!-- Grid del calendario -->
+    <div class="calendar-grid">
+        @for (week of weeks; track $index) {
+
+        @for (date of week; track $index) {
+        <div [class.other-month]="!isCurrentMonth(date)" class="day-cell" (click)="openModal(date)">
+            <div class="day-number">{{ date?.getDate() }}</div>
+            <div class="events-list">
+
+                @for (event of getEventsForDate(date); track $index) {
+                <div [ngClass]="getColorClass(event.color)" class="event-item" (click)="$event.stopPropagation()">
+                    <div class="event-time">{{ event.time }}</div>
+                    <div class="event-title">{{ event.title }}</div>
+                    <button class="btn-delete" (click)="deleteEvent(event.id)">✕</button>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        }
+
+    </div>
+
+    <!-- Modal crear evento -->
+    @if (showModal) {
+    <div class="modal-overlay" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Crear Evento</h3>
+                <button class="btn-close" (click)="closeModal()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="selected-date">
+                    Fecha: {{ selectedDate | date: 'dd/MM/yyyy' }}
+                </p>
+
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" [(ngModel)]="newEvent.title" placeholder="Ej: Visita guiada">
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea [(ngModel)]="newEvent.description" placeholder="Detalles del evento"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hora</label>
+                        <input type="time" [(ngModel)]="newEvent.time">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select [(ngModel)]="newEvent.category">
+                            @for (category of categories; track $index) {
+
+                            <option [value]="category.id">
+                                {{ category.name }}
+                            </option>
+
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
+                <button class="btn-save" (click)="createEvent()">Crear Evento</button>
+            </div>
+        </div>
+    </div>
+    }
+
+</div>
